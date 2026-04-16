@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                 //.setFeatureFlag("filmstrip.enabled", false)
                 .setFeatureFlag("pip.enabled", true)
                 .setFeatureFlag("welcomepage.enabled", false)
-                //.setFeatureFlag("prejoinpage.enabled", false)
+                .setFeatureFlag("prejoinpage.enabled", false)
                 .setConfigOverride("customToolbarButtons", customToolbarButtons)
                 .build()
         JitsiMeet.setDefaultConferenceOptions(defaultOptions)
@@ -70,11 +70,9 @@ class MainActivity : AppCompatActivity() {
             // Build options object for joining the conference. The SDK will merge the default
             // one we set earlier and this one when joining.
             val options = JitsiMeetConferenceOptions.Builder()
-                    .setRoom(text)
-                    // Settings for audio and video
-                    //.setAudioMuted(true)
-                    //.setVideoMuted(true)
-                    .build()
+                .setRoom("Kelvin_" + System.currentTimeMillis())
+                .setFeatureFlag("prejoinpage.enabled", false)
+                .build()
             // Launch the new activity with the given options. The launch() method takes care
             // of creating the required Intent and passing the options.
             JitsiMeetActivity.launch(this, options)
