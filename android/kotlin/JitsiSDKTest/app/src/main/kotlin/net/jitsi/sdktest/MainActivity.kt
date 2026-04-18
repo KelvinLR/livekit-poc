@@ -20,18 +20,18 @@ class MainActivity : AppCompatActivity() {
 
     private var customToolbarButtons: ArrayList<Bundle> = getCustomToolbarButtons()
 
-    private val broadcastReceiver = object : BroadcastReceiver() {
+    /*private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             onBroadcastReceived(intent)
         }
-    }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Initialize default options for Jitsi Meet conferences.
-        val serverURL: URL
+        /*val serverURL: URL
         serverURL = try {
             // When using JaaS, replace "https://meet.jit.si" with the proper serverURL
             URL("https://meet.jit.si/")
@@ -53,13 +53,13 @@ class MainActivity : AppCompatActivity() {
                 .build()
         JitsiMeet.setDefaultConferenceOptions(defaultOptions)
 
-        registerForBroadcastMessages()
+        // registerForBroadcastMessages()*/
     }
 
-    override fun onDestroy() {
+    /*override fun onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         super.onDestroy()
-    }
+    }*/
 
 
     fun onButtonClick(v: View?) {
@@ -67,15 +67,9 @@ class MainActivity : AppCompatActivity() {
         val text = editText.text.toString()
 
         if (text.isNotEmpty()) {
-            // Build options object for joining the conference. The SDK will merge the default
-            // one we set earlier and this one when joining.
-            val options = JitsiMeetConferenceOptions.Builder()
-                .setRoom("Kelvin_" + System.currentTimeMillis())
-                .setFeatureFlag("prejoinpage.enabled", false)
-                .build()
-            // Launch the new activity with the given options. The launch() method takes care
-            // of creating the required Intent and passing the options.
-            JitsiMeetActivity.launch(this, options)
+            val intent = Intent(this, LiveKitActivity::class.java)
+            startActivity(intent)
+
         }
     }
 
@@ -99,9 +93,9 @@ class MainActivity : AppCompatActivity() {
         customToolbarButtons.add(firstCustomButton)
         customToolbarButtons.add(secondCustomButton)
         return customToolbarButtons
-    }
+    }}
 
-    private fun registerForBroadcastMessages() {
+/*    private fun registerForBroadcastMessages() {
         val intentFilter = IntentFilter()
 
         /* This registers for every possible event sent from JitsiMeetSDK
@@ -136,3 +130,4 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this.applicationContext).sendBroadcast(hangupBroadcastIntent)
     }
 }
+*/

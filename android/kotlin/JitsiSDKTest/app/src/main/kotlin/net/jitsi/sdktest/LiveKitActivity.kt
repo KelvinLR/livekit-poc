@@ -7,10 +7,10 @@ import androidx.lifecycle.lifecycleScope
 import io.livekit.android.LiveKit
 import io.livekit.android.room.Room
 import io.livekit.android.events.RoomEvent
+import io.livekit.android.events.collect
 import io.livekit.android.room.track.RemoteVideoTrack
 
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collectLatest
 
 import livekit.org.webrtc.SurfaceViewRenderer
 import livekit.org.webrtc.EglBase
@@ -23,44 +23,45 @@ class LiveKitActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializa a Room usando a Factory do LiveKit
         room = LiveKit.create(this)
-        
-        // Usa o renderer do pacote livekit.org.webrtc para compatibilidade com o SDK
-        renderer = SurfaceViewRenderer(this)
 
-        renderer.init(
-            EglBase.create().eglBaseContext,
-            null
-        )
+        renderer = SurfaceViewRenderer(this)
+        renderer.init(EglBase.create().eglBaseContext, null)
 
         setContentView(renderer)
 
         lifecycleScope.launch {
 
-            try {
-                room.connect(
-                    "wss://SEU-PROJETO.livekit.cloud",
-                    "SEU_TOKEN"
-                )
+            // pra pegar esse token e a url tem q criar um projeto no site do livekit
+            room.connect(
+                "URL",
+                "token"
+            )
 
-                room.localParticipant.setCameraEnabled(true)
-                room.localParticipant.setMicrophoneEnabled(true)
+            room.localParticipant.setCameraEnabled(true)
+            room.localParticipant.setMicrophoneEnabled(true)
 
-                // room.events é um Flow<RoomEvent>
-                room.events.collectLatest { event ->
-                    when (event) {
-                        is RoomEvent.TrackSubscribed -> {
-                            val track = event.track
-                            if (track is RemoteVideoTrack) {
-                                track.addRenderer(renderer)
-                            }
+            room.events.collect { event ->
+                when (event) {
+
+                    is RoomEvent.TrackPublished -> {
+                        val track = event.publication.track
+
+                        if (track is io.livekit.android.room.track.LocalVideoTrack) {
+                            track.addRenderer(renderer)
                         }
-                        else -> {}
                     }
+
+                    is RoomEvent.TrackSubscribed -> {
+                        val track = event.track
+
+                        if (track is RemoteVideoTrack) {
+                            track.addRenderer(renderer)
+                        }
+                    }
+
+                    else -> {}
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
