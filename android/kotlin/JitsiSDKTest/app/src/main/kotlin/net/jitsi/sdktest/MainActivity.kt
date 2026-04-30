@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.NonNull
@@ -26,9 +27,24 @@ class MainActivity : AppCompatActivity() {
         }
     }*/
 
+    private val permissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+
+        val cameraGranted = permissions[android.Manifest.permission.CAMERA] == true
+        val micGranted = permissions[android.Manifest.permission.RECORD_AUDIO] == true
+
+        if (cameraGranted && micGranted) {
+            Log.i("permissao","DEU CERTO ENTROU AQ")
+        } else {
+            Log.i("permissao","DEU ERRADO")        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        requestPermissions()
 
         // Initialize default options for Jitsi Meet conferences.
         /*val serverURL: URL
@@ -63,6 +79,7 @@ class MainActivity : AppCompatActivity() {
 
 
     fun onButtonClick(v: View?) {
+
         val editText = findViewById<EditText>(R.id.conferenceName)
         val text = editText.text.toString()
 
@@ -70,6 +87,42 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LiveKitActivity::class.java)
             startActivity(intent)
 
+        }
+    }
+
+    private fun requestPermissions() {
+        permissionLauncher.launch(
+            arrayOf(
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.RECORD_AUDIO
+            )
+        )
+    }
+
+    fun hasPermissions(context: Context, permissions: Array<String>): Boolean {
+        for (permission in permissions) {
+            if (checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1) {
+            if (grantResults.isNotEmpty() &&
+                grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }
+            ) {
+                print("aceita")
+            } else {
+                print("negada")
+            }
         }
     }
 
